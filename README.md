@@ -156,4 +156,83 @@
 3. 레포지토리가 필요한 서비스가 생성
 4. 서비스가 필요한 컨트롤러가 생성
 
-### 여기서 의문 왜 스프링 컨테이너를 사용할까?
+### 문자열 SQL을 직접 사용하는 것이 너무 어렵다.
+
+- 단점으로 사람이다보니 문자열로 작성하는 SQL이 틀릴 가능성이 크다.
+- 바로바로 알 수가 없다.
+
+그래서 나온 것이 JPA 이다.
+
+---
+
+### JPA (Java Persistence API)
+
+자바 진영의 ORM이다.
+이 ORM 은 Object - Relational Mapping
+
+ 즉 객체 오브젝트와 릴레이셔널 관계를 맺는다 
+ - 객체와 관계형 DB의 테이블을 짝지어 데이터를 영구적으로 저장할 수 있도록 정해진 JAVA진영의 규칙
+
+여기서 중요한 것은 JPA는 규칙이다.<br>
+규칙과 구현한 코드가 있다. <br>
+이때 구현한 코드가 HIBERNATE 이다.<br>
+
+간단하게 표현하자면 인터페이스인 JPA를 구현한 것이 하이버네이트이다
+
+
+---
+
+### 이제 JPA를 이용하여 유저 테이블에 대응되는 Entity Class를만들어본다.
+
+- @Entity : 스프링이 User 객체와 user 테이블을 같은 것으로 바라본다.
+
+> Entity 는 저장되고, 관리되어야 하는 데이터를 말한다.
+
+빠져있는 아이디만 추가해주면 된다.
+
+- @Id : id 로 생각하겠다.
+- GeneratedValue : primary key는 자동 생성되는 값이다.
+- strategy = GenerationType.IDENTITY: autoIncrement
+
+Jpa 를 쓰기 위해서는 아무것도 들어있지 않은 기본생성자가 꼭 필요하다.
+
+- @Column : 길이라던지 , Null 이 되는지 안되는지 체크할 때 쓰인다. 기본적으로 테이블과 객체의 변수명이 같으면 name부분이 생략가능하고 컬럼어노테이션 자체를 생략가능하다
+
+이제 추가설정이 필요하다
+- application.yml 에서 설정을 추가해준다.
+
+```yaml
+  jpa:
+    hibernate:
+      ddl-auto: none 
+      # 스프링을 시작할 때 데이터베이스를 어떻게 할 것인가
+      # create : 기존 테이블이 있다면 삭제 후 다시 생성
+      # create-drop: 스프링이 종료될 때 테이블을 모두 제거
+      # update: 객체와 테이블이 다른 부분만 변경
+      # validate: 객체와 테이블이 동일한지 확인
+      # none : 별다른 조치를 하지 않는다.
+    properties:
+      hibernate:
+        show_sql: true # jpa를 사용해 db에 sql을 날릴 때 sql을 보여줄 것인가?
+        format_sql: true # 보여줄 때 포매팅을 해서 보여줄 것인가?
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        # 이 옵션으로 DB를 특정하면 조금씩 다른 SQL을 수정해준다.
+
+```
+
+---
+
+### Spring Data JPA 를 이용해서 자동으로 쿼리 날려보기
+
+#### 목표: SQL 을 작성하지 않고 생성 수정 조회를 해보기
+
+- save : 주어지는 객체를 저장하거나 업데이트 시켜준다.
+- findAll : 주어지는 객체가 매핑된 테이블의 모든 데이터를 가져온다
+- findById: id를 기준으로 특정한 1개의 데이터를 가져온다.
+
+> 이 메소드들을 쓰게 되면 알아서 기능을 처리해주는데
+> 그것은 Spring Data JPA 가  복잡한 JPA 코드를 스프링과 함께
+> 쉽게 사용할 수 있도록 도와주는 라이브러리이다.
+
+
+
